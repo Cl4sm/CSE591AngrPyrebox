@@ -15,7 +15,8 @@ from .hub import EngineHub, EnginePreset
 # It is meant to serve as the boilerplate for other presets.
 basic_preset = EnginePreset(['failure', 'syscall', 'hook'])
 basic_preset.add_default_plugin('failure', SimEngineFailure)
-basic_preset.add_default_plugin('syscall', SimEngineSyscall)
+basic_preset.add_default_plugin('syscall', SimPyrebox)
+#basic_preset.add_default_plugin('syscall', SimEngineSyscall)
 basic_preset.add_default_plugin('hook', SimEngineHook)
 basic_preset.add_default_plugin('procedure', SimEngineProcedure)
 
