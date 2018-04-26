@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: angr
+Version: 7.8.2.21
+Summary: A multi-architecture binary analysis toolkit, with the ability to perform dynamic symbolic execution and various static analyses on binaries
+Home-page: https://github.com/angr/angr
+Author: UNKNOWN
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
