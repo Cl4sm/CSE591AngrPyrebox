@@ -21,6 +21,105 @@ pyrebox_print = None
 # it as a global
 procs_created = 0
 target_procname = ""
+regs = {'ac': '0x0',
+ 'acflag': '0x0',
+ 'ah': '0x0L',
+ 'al': '0x0',
+ 'ax': '0x0',
+ 'bh': '0x0L',
+ 'bl': '0x0',
+ 'bp': '0x7ffeff08',
+ 'bx': '0x0',
+ 'cc_dep1': '0x7ffeff00',
+ 'cc_dep2': '0xc',
+ 'cc_ndep': '0x0',
+ 'cc_op': '0x6',
+ 'ch': '0x0',
+ 'cl': '0x55',
+ 'cmlen': '0x0L',
+ 'cmstart': '0x0L',
+ 'cs': '0x0L',
+ 'cx': '0x55',
+ 'd': '0x1',
+ 'dflag': '0x1',
+ 'dh': '0xff',
+ 'di': '0x0L',
+ 'dih': '0x0',
+ 'dil': '0x0',
+ 'dl': '0x44',
+ 'ds': '0x0L',
+ 'dx': '0xff44',
+ 'eax': '0x0',
+ 'ebp': '0x7ffeff08',
+ 'ebx': '0x0',
+ 'ecx': '0x55',
+ 'edi': '0x0',
+ 'edx': '0x7ffeff44',
+ 'eflags': '0x10',
+ 'eip': '0x80483f0',
+ 'emnote': '0x0L',
+ 'es': '0x0L',
+ 'esi': '0x0',
+ 'esp': '0x7ffefeec',
+ 'fc3210': '0x0L',
+ 'flags': '0x10',
+ 'fpreg': '0x0L',
+ 'fpround': '0x0',
+ 'fptag': '0x0L',
+ 'fpu_regs': '0x0L',
+ 'fpu_tags': '0x0L',
+ 'fs': '0x0',
+ 'ftop': '0x0',
+ 'gdt': '0x0L',
+ 'gs': '0xb01',
+ 'id': '0x1',
+ 'idflag': '0x1',
+ 'ip': '0x80483f0',
+ 'ip_at_syscall': '0x0L',
+ 'ldt': '0x0L',
+ 'mm0': '0x0L',
+ 'mm1': '0x0L',
+ 'mm2': '0x0L',
+ 'mm3': '0x0L',
+ 'mm4': '0x0L',
+ 'mm5': '0x0L',
+ 'mm6': '0x0L',
+ 'mm7': '0x0L',
+ 'nraddr': '0x0L',
+ 'pc': '0x80483f0',
+ 'rflags': '0x10',
+ 'sc_class': '0x0L',
+ 'si': '0x0',
+ 'sih': '0x0',
+ 'sil': '0x0',
+ 'sp': '0x7ffefeec',
+ 'ss': '0x0L',
+ 'sseround': '0x0',
+ 'st0': '0x0L',
+ 'st1': '0x0L',
+ 'st2': '0x0L',
+ 'st3': '0x0L',
+ 'st4': '0x0L',
+ 'st5': '0x0L',
+ 'st6': '0x0L',
+ 'st7': '0x0L',
+ 'tag0': '0x0',
+ 'tag1': '0x0',
+ 'tag2': '0x0',
+ 'tag3': '0x0',
+ 'tag4': '0x0',
+ 'tag5': '0x0',
+ 'tag6': '0x0',
+ 'tag7': '0x0',
+ 'xmm0': '0x0L',
+ 'xmm1': '0x0L',
+ 'xmm2': '0x0L',
+ 'xmm3': '0x0L',
+ 'xmm4': '0x0L',
+ 'xmm5': '0x0L',
+ 'xmm6': '0x0L',
+ 'xmm7': '0x0L'}
+
 
 
 def initialize_callbacks(module_hdl, printer):
@@ -171,11 +270,36 @@ def context_change(target_pgd, target_mod_name, old_pgd, new_pgd):
             pyrebox_print("The entry point for %s is %x\n" % (target_mod_name, ep))
             cm.rm_callback("context_change")
             # Set a breakpoint on the EP, that will start a shell
-            bp = BP(ep, target_pgd)
-    #        bp.enable()
+            bp = BP(ep, target_pgd, func=break_point)#, func=break_point)
+            bp.enable()
 
 def break_point(cpu_index, cpu):
-    pyrebox_print("BREAKPOINT TRIPPED")
+    import api
+    pyrebox_print("BREAKPOINT TRIPPED " + str(cpu_index) + ' ' + str(cpu))
+    set_all_regs(regs, cpu_index)
+    pyrebox_print("BREAKPOINT TRIPPED " + str(cpu_index) + ' ' + str(cpu))
+
+def set_full_regs(cpu_index, reg_name, value):
+    import api
+    reg_name = reg_name.upper()
+    int_value = int(value.replace('L', ''), 16)
+    pyrebox_print("Writing " + value + " to " + reg_name)
+    api.w_r(cpu_index, reg_name, int_value)
+
+def set_seg_regs(cpu_index, reg_name, value):
+    import api
+    reg_name = reg_name.upper()
+    int_value = int(value.replace('L', ''), 16)
+    pyrebox_print("Writing " + value + " to " + reg_name)
+    api.w_r(cpu_index, reg_name, int_value)
+
+def set_all_regs(registers, cpu_index):
+    full_reg_names = ['eax', 'ebx', 'ecx', 'edx', 'esp', 'ebp', 'esi', 'edi', 'eip', 'eflags']
+    seg_reg_names = ['es', 'cs', 'ss', 'ds', 'fs', 'gs', 'ldt', 'gdt', 'idt', 'tr']
+    #other = ['cr0', 'cr1', 'cr2', 'cr3', 'cr4']
+    map(lambda reg: set_full_regs(cpu_index, reg, registers[reg]), full_reg_names)
+    map(lambda reg: set_seg_regs(cpu_index, reg, registers[reg]), seg_reg_names)
+
 
 def new_proc(pid, pgd, name):
     '''
@@ -195,16 +319,9 @@ def new_proc(pid, pgd, name):
     pyrebox_print("New process created! pid: %x, pgd: %x, name: %s" % (pid, pgd, name))
     procs_created += 1
     if (name == "test.exe"):
-        bp = BP(0x4014e ,pgd, size=0x1000, func=break_point)
-        bp.enable()
-        pyrebox_print("Set Breakpoint " + hex(bp.get_addr()))
-    # For instance, we can start the shell whenever a process is created
-    #ep = find_ep(pgd, name)
-    #if ep is not None:
-    #    pyrebox_print("The entry point for %s is %x\n" % (name, ep))
-    #    # Set a breakpoint on the EP, that will start a shell
-    #    bp = BP(ep, pgd)
-    #    #bp.enable()
+        cm.add_callback(CallbackManager.CONTEXTCHANGE_CB, functools.partial(context_change, pgd, name), name="context_change")
+        # In order to start a shell, we just need to call start_shell()
+        pyrebox_print("Starting a shell after the %s process has been created" % name)
 
 def remove_proc(pid, pgd, name):
     '''
