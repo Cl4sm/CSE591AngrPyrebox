@@ -174,6 +174,8 @@ def context_change(target_pgd, target_mod_name, old_pgd, new_pgd):
             bp = BP(ep, target_pgd)
     #        bp.enable()
 
+def break_point(cpu_index, cpu):
+    pyrebox_print("BREAKPOINT TRIPPED")
 
 def new_proc(pid, pgd, name):
     '''
@@ -192,13 +194,17 @@ def new_proc(pid, pgd, name):
 
     pyrebox_print("New process created! pid: %x, pgd: %x, name: %s" % (pid, pgd, name))
     procs_created += 1
+    if (name == "test.exe"):
+        bp = BP(0x4014e ,pgd, size=0x1000, func=break_point)
+        bp.enable()
+        pyrebox_print("Set Breakpoint " + hex(bp.get_addr()))
     # For instance, we can start the shell whenever a process is created
-    ep = find_ep(pgd, name)
-    if ep is not None:
-        pyrebox_print("The entry point for %s is %x\n" % (name, ep))
-        # Set a breakpoint on the EP, that will start a shell
-        bp = BP(ep, pgd)
-        #bp.enable()
+    #ep = find_ep(pgd, name)
+    #if ep is not None:
+    #    pyrebox_print("The entry point for %s is %x\n" % (name, ep))
+    #    # Set a breakpoint on the EP, that will start a shell
+    #    bp = BP(ep, pgd)
+    #    #bp.enable()
 
 def remove_proc(pid, pgd, name):
     '''
