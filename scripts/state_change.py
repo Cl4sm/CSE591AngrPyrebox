@@ -23,23 +23,23 @@ procs_created = 0
 target_procname = ""
 regs = {'ac': '0x0',
  'acflag': '0x0',
- 'ah': '0x0L',
- 'al': '0x0',
- 'ax': '0x0',
- 'bh': '0x0L',
- 'bl': '0x0',
- 'bp': '0x7ffeff08',
- 'bx': '0x0',
+ #'ah': '0x0L',
+ #'al': '0x0',
+ #'ax': '0x0',
+ #'bh': '0x0L',
+ #'bl': '0x0',
+ #'bp': '0x7ffeff08',
+ #'bx': '0x0',
  'cc_dep1': '0x7ffeff00',
  'cc_dep2': '0xc',
  'cc_ndep': '0x0',
  'cc_op': '0x6',
- 'ch': '0x0',
- 'cl': '0x55',
+ #'ch': '0x0',
+ #'cl': '0x55',
  'cmlen': '0x0L',
  'cmstart': '0x0L',
  'cs': '0x0L',
- 'cx': '0x55',
+ #'cx': '0x55',
  'd': '0x1',
  'dflag': '0x1',
  'dh': '0xff',
@@ -48,7 +48,7 @@ regs = {'ac': '0x0',
  'dil': '0x0',
  'dl': '0x44',
  'ds': '0x0L',
- 'dx': '0xff44',
+ #'dx': '0xff44',
  'eax': '0x0',
  'ebp': '0x7ffeff08',
  'ebx': '0x0',
@@ -62,7 +62,7 @@ regs = {'ac': '0x0',
  'esi': '0x0',
  'esp': '0x7ffefeec',
  'fc3210': '0x0L',
- 'flags': '0x10',
+ #'flags': '0x10',
  'fpreg': '0x0L',
  'fpround': '0x0',
  'fptag': '0x0L',
@@ -77,22 +77,22 @@ regs = {'ac': '0x0',
  'ip': '0x80483f0',
  'ip_at_syscall': '0x0L',
  'ldt': '0x0L',
- 'mm0': '0x0L',
- 'mm1': '0x0L',
- 'mm2': '0x0L',
- 'mm3': '0x0L',
- 'mm4': '0x0L',
- 'mm5': '0x0L',
- 'mm6': '0x0L',
- 'mm7': '0x0L',
+ #'mm0': '0x0L',
+ #'mm1': '0x0L',
+ #'mm2': '0x0L',
+ #'mm3': '0x0L',
+ #'mm4': '0x0L',
+ #'mm5': '0x0L',
+ #'mm6': '0x0L',
+ #'mm7': '0x0L',
  'nraddr': '0x0L',
- 'pc': '0x80483f0',
- 'rflags': '0x10',
+ #'pc': '0x80483f0',
+ #'rflags': '0x10',
  'sc_class': '0x0L',
  'si': '0x0',
  'sih': '0x0',
  'sil': '0x0',
- 'sp': '0x7ffefeec',
+ #'sp': '0x7ffefeec',
  'ss': '0x0L',
  'sseround': '0x0',
  'st0': '0x0L',
@@ -111,14 +111,15 @@ regs = {'ac': '0x0',
  'tag5': '0x0',
  'tag6': '0x0',
  'tag7': '0x0',
- 'xmm0': '0x0L',
- 'xmm1': '0x0L',
- 'xmm2': '0x0L',
- 'xmm3': '0x0L',
- 'xmm4': '0x0L',
- 'xmm5': '0x0L',
- 'xmm6': '0x0L',
- 'xmm7': '0x0L'}
+ #'xmm0': '0x0L',
+ #'xmm1': '0x0L',
+ #'xmm2': '0x0L',
+ #'xmm3': '0x0L',
+ #'xmm4': '0x0L',
+ #'xmm5': '0x0L',
+ #'xmm6': '0x0L',
+ #'xmm7': '0x0L'}
+ }
 
 
 
@@ -192,39 +193,6 @@ def find_ep(pgd, proc_name):
                 pyrebox_print("Unable to run pefile on loaded module %s" % name)
 
 
-def do_custom_command_example(line):
-    ''' Example of custom command. This first line will be shown as command description when %list_commands is called.
-
-        The rest of this docstring will be shown if we call
-        help(**command**) from the ipython command line.
-
-        If we declare any function with the "do_" prefix,
-        it will be added automagically as a shell command,
-        ignoring the "do_" prefix.
-
-        These functions must have an argument that will
-        receive the command line arguments as a string.
-    '''
-    global pyrebox_print
-    global procs_created
-    pyrebox_print("The arguments for this custom command are: %s" % line)
-    pyrebox_print("I am a script, and the number of processes created is %d\n" % procs_created)
-
-
-def do_set_target(line):
-    '''Set target process - Custom command
-
-       Set a target process name. When a process with this name is created,
-       the script will start monitoring context changes and retrieve
-       the module entry point as soon as it is available in memory. Then
-       it will place a breakpoint on the entry point.
-    '''
-    global pyrebox_print
-    global target_procname
-    target_procname = line.strip()
-    pyrebox_print("Waiting for process %s to start\n" % target_procname)
-
-
 def do_copy_execute(line):
     '''Copy a file from host to guest, execute it, and pause VM on its EP - Custom command
 
@@ -291,14 +259,14 @@ def set_seg_regs(cpu_index, reg_name, value):
     reg_name = reg_name.upper()
     int_value = int(value.replace('L', ''), 16)
     pyrebox_print("Writing " + value + " to " + reg_name)
-    api.w_r(cpu_index, reg_name, int_value)
+    api.w_sr(cpu_index, reg_name, int_value)
 
 def set_all_regs(registers, cpu_index):
     full_reg_names = ['eax', 'ebx', 'ecx', 'edx', 'esp', 'ebp', 'esi', 'edi', 'eip', 'eflags']
     seg_reg_names = ['es', 'cs', 'ss', 'ds', 'fs', 'gs', 'ldt', 'gdt', 'idt', 'tr']
     #other = ['cr0', 'cr1', 'cr2', 'cr3', 'cr4']
     map(lambda reg: set_full_regs(cpu_index, reg, registers[reg]), full_reg_names)
-    map(lambda reg: set_seg_regs(cpu_index, reg, registers[reg]), seg_reg_names)
+    #map(lambda reg: set_seg_regs(cpu_index, reg, registers[reg]), seg_reg_names)
 
 
 def new_proc(pid, pgd, name):
