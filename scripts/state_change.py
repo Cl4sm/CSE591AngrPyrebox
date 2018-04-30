@@ -21,78 +21,80 @@ pyrebox_print = None
 # it as a global
 procs_created = 0
 target_procname = ""
+target_procpgd = 0
+memory = {'0x8048231': '0xdeadbeef'}
 regs = {'ac': '0x0',
  'acflag': '0x0',
- #'ah': '0x0L',
- #'al': '0x0',
- #'ax': '0x0',
- #'bh': '0x0L',
- #'bl': '0x0',
- #'bp': '0x7ffeff08',
- #'bx': '0x0',
- 'cc_dep1': '0x7ffeff00',
- 'cc_dep2': '0xc',
+ 'ah': '0xfe',
+ 'al': '0xb0',
+ 'ax': '0xfeb0',
+ 'bh': '0x0L',
+ 'bl': '0x0',
+ 'bp': '0x7ffeff58',
+ 'bx': '0x0',
+ 'cc_dep1': '0x0',
+ 'cc_dep2': '0x0',
  'cc_ndep': '0x0',
- 'cc_op': '0x6',
- #'ch': '0x0',
- #'cl': '0x55',
+ 'cc_op': '0xf',
+ 'ch': '0x0',
+ 'cl': '0x0',
  'cmlen': '0x0L',
  'cmstart': '0x0L',
  'cs': '0x0L',
- #'cx': '0x55',
+ 'cx': '0x0',
  'd': '0x1',
  'dflag': '0x1',
- 'dh': '0xff',
- 'di': '0x0L',
- 'dih': '0x0',
- 'dil': '0x0',
- 'dl': '0x44',
+ 'dh': '0xfe',
+ 'di': '0xff40',
+ 'dih': '0xff',
+ 'dil': '0x40',
+ 'dl': '0xfc',
  'ds': '0x0L',
- #'dx': '0xff44',
- 'eax': '0x0',
- 'ebp': '0x7ffeff08',
+ 'dx': '0xfefc',
+ 'eax': '0x7ffefeb0',
+ 'ebp': '0x7ffeff58',
  'ebx': '0x0',
- 'ecx': '0x55',
- 'edi': '0x0',
- 'edx': '0x7ffeff44',
- 'eflags': '0x10',
- 'eip': '0x80483f0',
+ 'ecx': '0x0',
+ 'edi': '0x7ffeff40',
+ 'edx': '0x7ffefefc',
+ 'eflags': '0x44',
+ 'eip': '0x4011e2',
  'emnote': '0x0L',
  'es': '0x0L',
  'esi': '0x0',
- 'esp': '0x7ffefeec',
+ 'esp': '0x7ffefea0',
  'fc3210': '0x0L',
- #'flags': '0x10',
+ 'flags': '0x44',
  'fpreg': '0x0L',
  'fpround': '0x0',
  'fptag': '0x0L',
  'fpu_regs': '0x0L',
  'fpu_tags': '0x0L',
- 'fs': '0x0',
+ 'fs': '0xc008',
  'ftop': '0x0',
  'gdt': '0x0L',
- 'gs': '0xb01',
+ 'gs': '0x0',
  'id': '0x1',
  'idflag': '0x1',
- 'ip': '0x80483f0',
+ 'ip': '0x4011e2',
  'ip_at_syscall': '0x0L',
  'ldt': '0x0L',
- #'mm0': '0x0L',
- #'mm1': '0x0L',
- #'mm2': '0x0L',
- #'mm3': '0x0L',
- #'mm4': '0x0L',
- #'mm5': '0x0L',
- #'mm6': '0x0L',
- #'mm7': '0x0L',
+ 'mm0': '0x0L',
+ 'mm1': '0x0L',
+ 'mm2': '0x0L',
+ 'mm3': '0x0L',
+ 'mm4': '0x0L',
+ 'mm5': '0x0L',
+ 'mm6': '0x0L',
+ 'mm7': '0x0L',
  'nraddr': '0x0L',
- #'pc': '0x80483f0',
- #'rflags': '0x10',
+ 'pc': '0x4011e2',
+ 'rflags': '0x44',
  'sc_class': '0x0L',
  'si': '0x0',
  'sih': '0x0',
  'sil': '0x0',
- #'sp': '0x7ffefeec',
+ 'sp': '0x7ffefea0',
  'ss': '0x0L',
  'sseround': '0x0',
  'st0': '0x0L',
@@ -111,15 +113,14 @@ regs = {'ac': '0x0',
  'tag5': '0x0',
  'tag6': '0x0',
  'tag7': '0x0',
- #'xmm0': '0x0L',
- #'xmm1': '0x0L',
- #'xmm2': '0x0L',
- #'xmm3': '0x0L',
- #'xmm4': '0x0L',
- #'xmm5': '0x0L',
- #'xmm6': '0x0L',
- #'xmm7': '0x0L'}
- }
+ 'xmm0': '0x0L',
+ 'xmm1': '0x0L',
+ 'xmm2': '0x0L',
+ 'xmm3': '0x0L',
+ 'xmm4': '0x0L',
+ 'xmm5': '0x0L',
+ 'xmm6': '0x0L',
+ 'xmm7': '0x0L'}
 
 
 
@@ -137,6 +138,7 @@ def initialize_callbacks(module_hdl, printer):
     #  --> Necessary to call cm.clean() from clean() function
     global cm
     global pyrebox_print
+    from plugins.guest_agent import guest_agent
     # Initialize printer function (global var), that we can use to print
     # text that is associated to our script
     pyrebox_print = printer
@@ -147,6 +149,9 @@ def initialize_callbacks(module_hdl, printer):
     cm.add_callback(CallbackManager.CREATEPROC_CB, new_proc, name="vmi_new_proc")
     cm.add_callback(CallbackManager.REMOVEPROC_CB, remove_proc, name="vmi_remove_proc")
     pyrebox_print("[*]    Initialized callbacks")
+
+    guest_agent.execute_file("C:\\Users\\Windows7\\Desktop\\test.exe")
+
 
 
 def clean():
@@ -238,13 +243,14 @@ def context_change(target_pgd, target_mod_name, old_pgd, new_pgd):
             pyrebox_print("The entry point for %s is %x\n" % (target_mod_name, ep))
             cm.rm_callback("context_change")
             # Set a breakpoint on the EP, that will start a shell
+            target_procpgd = target_pgd
             bp = BP(ep, target_pgd, func=break_point)#, func=break_point)
             bp.enable()
 
 def break_point(cpu_index, cpu):
-    import api
     pyrebox_print("BREAKPOINT TRIPPED " + str(cpu_index) + ' ' + str(cpu))
     set_all_regs(regs, cpu_index)
+    set_all_memory(target_procpgd)
     pyrebox_print("BREAKPOINT TRIPPED " + str(cpu_index) + ' ' + str(cpu))
 
 def set_full_regs(cpu_index, reg_name, value):
@@ -254,7 +260,7 @@ def set_full_regs(cpu_index, reg_name, value):
     pyrebox_print("Writing " + value + " to " + reg_name)
     api.w_r(cpu_index, reg_name, int_value)
 
-def set_seg_regs(cpu_index, reg_name, value):
+def set_seg_regs(cpu_index, reg_name, selector, base, limit):
     import api
     reg_name = reg_name.upper()
     int_value = int(value.replace('L', ''), 16)
@@ -266,7 +272,32 @@ def set_all_regs(registers, cpu_index):
     seg_reg_names = ['es', 'cs', 'ss', 'ds', 'fs', 'gs', 'ldt', 'gdt', 'idt', 'tr']
     #other = ['cr0', 'cr1', 'cr2', 'cr3', 'cr4']
     map(lambda reg: set_full_regs(cpu_index, reg, registers[reg]), full_reg_names)
-    #map(lambda reg: set_seg_regs(cpu_index, reg, registers[reg]), seg_reg_names)
+    #map(lambda reg: set_seg_regs(cpu_index, reg, registers[reg], ???, ???), seg_reg_names)
+
+def set_all_memory(pgd):
+    global memory
+
+    pyrebox_print("MEMORY: " + str(memory))
+    memory = dict(map(lambda x: (int(x[0], 16), hex_to_bytes(x[1].replace("0x", ""))), memory.iteritems()))
+    pyrebox_print("MEMORY: " + str(memory))
+    #map(lambda mem: set_memory_virtual(pgd, mem[0], mem[1]), memory.iteritems())
+    
+
+def hex_to_bytes(hex_str, endianness=0):
+    pyrebox_print("STRING: " + hex_str)
+    pyrebox_print("BYTES: " + repr(hex_str.decode("hex")))
+    if endianness == 0:
+        return hex_str.decode("hex")[::-1]
+    else:
+        return hex_str.decode("hex")
+
+def set_memory_physical(addr, buf):
+    import api
+    api.w_pa(addr, buf)
+
+def set_memory_virtual(pgd, addr, buf):
+    import api
+    api.w_va(pgd, addr, buf)
 
 
 def new_proc(pid, pgd, name):
@@ -288,8 +319,6 @@ def new_proc(pid, pgd, name):
     procs_created += 1
     if (name == "test.exe"):
         cm.add_callback(CallbackManager.CONTEXTCHANGE_CB, functools.partial(context_change, pgd, name), name="context_change")
-        # In order to start a shell, we just need to call start_shell()
-        pyrebox_print("Starting a shell after the %s process has been created" % name)
 
 def remove_proc(pid, pgd, name):
     '''
