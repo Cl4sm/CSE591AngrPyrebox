@@ -149,8 +149,13 @@ def initialize_callbacks(module_hdl, printer):
     cm.add_callback(CallbackManager.CREATEPROC_CB, new_proc, name="vmi_new_proc")
     cm.add_callback(CallbackManager.REMOVEPROC_CB, remove_proc, name="vmi_remove_proc")
     pyrebox_print("[*]    Initialized callbacks")
+    
+    filename = None
+    with open("filename","rb") as f:
+        filename = f.readlines()
 
-    guest_agent.execute_file("C:\\Users\\Windows7\\Desktop\\test.exe")
+    guest_agent.copy_file(filename.strip(), "C:\\Users\\Windows7\\Desktop\\filename.exe")
+    guest_agent.execute_file("C:\\Users\\Windows7\\Desktop\\filename.exe")
 
 
 
@@ -249,8 +254,8 @@ def context_change(target_pgd, target_mod_name, old_pgd, new_pgd):
 
 def break_point(cpu_index, cpu):
     pyrebox_print("BREAKPOINT TRIPPED " + str(cpu_index) + ' ' + str(cpu))
-    set_all_regs(regs, cpu_index)
-    set_all_memory(target_procpgd)
+    #set_all_regs(regs, cpu_index)
+    #set_all_memory(target_procpgd)
     pyrebox_print("BREAKPOINT TRIPPED " + str(cpu_index) + ' ' + str(cpu))
 
 def set_full_regs(cpu_index, reg_name, value):

@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+import angr
+import subprocess
+
+p = angr.Project("/home/ubuntu/test.exe")
+
+state = p.factory.entry_state()
+
+with open("/home/ubuntu/filename","wb") as f:
+    print "file name = ",state.project.filename
+    f.write(state.project.filename)
+
+proc = subprocess.Popen("./auto_pyrebox")
