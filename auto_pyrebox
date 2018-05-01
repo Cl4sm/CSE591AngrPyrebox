@@ -1,0 +1,26 @@
+#!/bin/bash
+#ARGV1 = "1"
+#ARGV2 = "hello world"
+#ARGV3 = "20"
+
+cd pyrebox
+./pyrebox-i386 -monitor tcp:127.0.0.1:1234,server,nowait -m 1024 -usb -drive file=images/Win7.qcow2,index=0,media=disk,format=qcow2,cache=unsafe -loadvm 1 &
+sleep 5 
+
+# assuming qemu is started
+#echo "loadvm 1" | nc 127.0.0.1 1234
+#rc=$?
+#if [ $rc -eq 0 ]; then
+#echo “loadvm1 ok”
+#fi
+sleep 3
+
+
+
+echo -e "sh\\nprint 'hello'\\nq\\n" | nc 127.0.0.1 1234
+RC=$?
+if [ $RC -eq 0 ]; then
+echo “sh OK”
+fi
+
+#echo "ps" | nc 127.0.0.1 1234

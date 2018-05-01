@@ -17,8 +17,13 @@ class SimEngineSyscall(SimEngine):
         if sys_procedure is None:
             if angr.sim_options.BYPASS_UNSUPPORTED_SYSCALL not in state.options:
                 print "yay"
-                print "state ", state.memory.mem._pages
-                print "state[0]", state.memory.mem._pages[0]
+                #print "state ", state.memory.mem._pages
+                #print "state[0]", state.memory.mem._pages[0]
+                for key in state.memory.mem._pages:
+                    print "key",key
+                    print "value",state.memory.mem._pages[key]
+                    #print help(state.memory.mem._pages[key])
+                #print "state[1]", state.memory.mem._pages[1]
                 raise AngrUnsupportedSyscallError("Trying to perform a syscall on an emulated system which is not currently cofigured to support syscalls. To resolve this, make sure that your SimOS is a subclass of SimUserspace, or set the BYPASS_UNSUPPORTED_SYSCALL state option.")
             else:
                 try:
