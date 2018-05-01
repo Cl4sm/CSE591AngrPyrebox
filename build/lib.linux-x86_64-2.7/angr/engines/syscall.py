@@ -11,13 +11,19 @@ class SimEngineSyscall(SimEngine):
 
     def process(self, state, **kwargs):
         l.debug("Invoking system call handler")
+        print "hello 1"
         sys_procedure = self.project.simos.syscall(state)
-
+        print "hello 2"
         if sys_procedure is None:
             if angr.sim_options.BYPASS_UNSUPPORTED_SYSCALL not in state.options:
+                print "yay"
+                print "state ", state.memory.mem._pages
+                print "state[0]", state.memory.mem._pages[0]
                 raise AngrUnsupportedSyscallError("Trying to perform a syscall on an emulated system which is not currently cofigured to support syscalls. To resolve this, make sure that your SimOS is a subclass of SimUserspace, or set the BYPASS_UNSUPPORTED_SYSCALL state option.")
             else:
                 try:
+                    print "yay2"
+                    print "state ", state.memory.mem._pages
                     cc = angr.SYSCALL_CC[state.arch.name][state.os_name](state.arch)
                 except KeyError:
                     try:
